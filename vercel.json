@@ -10,6 +10,18 @@
      {
       "src": "/(.*)",
       "dest": "server.js"
+     },
+     {
+        "src": "/api/products(.*)",
+        "dest": "/src/features/product/routes/product.routes.js"
+     },
+     {
+        "src": "/api/users(.*)",
+        "dest": "/src/features/user/routes/user.routes.js"
+     },
+     {
+        "src": "/api/cartItems(.*)",
+        "dest": "/src/features/cart/cartitems.routes.js"
      }
     ]
    }
