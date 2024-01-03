@@ -1,0 +1,488 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ECOM API",
+    "description": "API for an e-commerce system.",
+    "version": "1.0.0"
+
+  },
+  "server": [
+    {
+      "url": "localhost:3000",
+      "description": "Local server"
+    
+    }
+  ],
+  "components":{
+    "securitySchemes":{
+      "JWT":{
+          "in": "header",
+          "name": "Authorization",
+          "type": "apiKey"
+      }}
+  },
+
+
+  "paths": {
+    "/api/users/signup": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "User Sign Up",
+        "description": "Registers a new user in the system.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "User created successfully",
+                  "data": {
+                    "id": "user._id",
+                    "name": "user.name",
+                    "email": "user.email",
+                    "type": "user.type"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "error": "Internal Server Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/signin": {
+      "post": {
+        "summary": "User Sign In",
+        "tags": [
+          "Users"
+        ],
+        "description": "Logs in a user and generates a JWT token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged in successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "User logged in successfully",
+                  "data": {
+                    "token": "JWT Token"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Incorrect Credentials",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "error": "Please provide email and password"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid email or password",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "error": "Invalid email or password"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "error": "Internal Server Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/": {
+      
+      "get": {
+        "summary": "Get All Products",
+        "tags": [
+          "Products"
+        ],
+        "description": "Retrieves a list of all products.",
+        "security":[
+          {"JWT":{}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "products": []
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a New Product",
+        "tags": [
+          "Products"
+        ],
+        "description": "Adds a new product to the system.",
+        "security":[
+          {"JWT":{}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "sizes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product added successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "product": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "summary": "Get One Product",
+        "tags": [
+          "Products"
+        ],
+        "security":[
+          {"JWT":{}}
+        ],
+        "description": "Retrieves information about a specific product based on the provided ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "product": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/filter": {
+      "get": {
+        "summary": "Get Filtered Products",
+        "tags": [
+          "Products"
+        ],
+        "security":[
+          {"JWT":{}}
+        ],
+        "description": "Retrieves a list of products based on specified filters.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "minPrice",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maxPrice",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "products": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/rate": {
+      "post": {
+        "summary": "Rate a Product",
+        "tags": [
+          "Products"
+        ],
+        "security":[
+          {"JWT":{}}
+        ],
+        "description": "Rates a product with the given rating for a specific user.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "rating",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Rating successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Product rated successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cartItems/": {
+      "post": {
+        "summary": "Add Product to Cart",
+        "tags": [
+          "Cart"
+        ],
+        "security":[
+          {"JWT":{}}
+        ],
+        "description": "Adds a product to the user's shopping cart.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "productId": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product added to cart",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Product added to cart",
+                  "data": {
+                    "id": "cart._id",
+                    "user": "cart.user",
+                    "products": [
+                      {
+                        "product": "cart.products[0].product",
+                        "quantity": "cart.products[0].quantity"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Cart Items",
+        "tags": [
+          "Cart"
+        ],
+        "security":[
+          {"JWT":{}}
+        ],
+        "description": "Retrieves the user's shopping cart items.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cartItems": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cartItems/{id}": {
+      "delete": {
+        "summary": "Delete Cart Item",
+        "tags": [
+          "Cart"
+        ],
+        "security":[
+          {"JWT":{}}
+        ],
+        "description": "Deletes a specific item from the user's shopping cart.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CartItem deleted successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "CartItem deleted successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
+}
