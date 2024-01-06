@@ -73,4 +73,34 @@ export default class UserController{
         })
     }
 }
+
+    static async resetPassword(req, res){
+        try{
+            const password = req.body.password;
+            const id = req.params.id;
+            const user = await User.findByIdAndUpdate(id, {password}, {new: true});
+            console.log(user)
+            if(user){
+                await user.save();
+                res.status(200).json({
+                    status: 'success',
+                    message: 'Password reset successfully',
+                })
+            }
+            else{
+                res.status(404).json({
+                    status: 'error',
+                    error: 'User not found'
+                })
+            
+            }
+
+        }
+        catch(err){
+            res.status(500).json({
+                status: 'error',
+                error: err.message
+            })
+        }
+}
 }

@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
+import mongoose, { connect } from 'mongoose';
 import dotenv from 'dotenv';
 
 // ? Importing Routes
@@ -23,6 +23,10 @@ import winstonloggerMiddleware from './src/middlewares/winstonlogger.middleware.
 
 // ? Importing Error Handler
 import ApplicationError from './src/ErrorHandler/ApplicationError.js';
+
+
+// ? Importing MongoDB Connection
+import connectToMongoDB from './src/config/mongodb.js';
 
 // ? Express Server
 const server = express();
@@ -84,4 +88,5 @@ server.listen(3000,(err)=>{
         console.log(err)
     }
     console.log("Server is running on port 3000")
+    // connectToMongoDB();
 });
