@@ -1,17 +1,15 @@
-<<<<<<< HEAD
 # Ecommerce Restful API
->> Please visit [API DOCUMENTATION](https://api.sudhanshusharma.in/api/docs) for API documentation
+>> Please visit [https://api.sudhanshusharma.in/api/docs](https://api.sudhanshusharma.in/api/docs) for API documentation
 
 
-# Node.js Deployment
+Steps to deploy the project on AWS EC2 instance and configure NGINX and SSL
 
-> Steps to deploy a Node.js app to DigitalOcean using PM2, NGINX as a reverse proxy and an SSL from LetsEncrypt
 
 ## 1. Create Free AWS Account
 Create free AWS Account at https://aws.amazon.com/
 
 ## 2. Create and Lauch an EC2 instance and SSH into machine
-- Create an EC2 instance with Ubuntu 20.04 
+ Create an EC2 instance with Ubuntu 20.04 
 
 ## 3. Install Node and NPM
 ```
@@ -57,8 +55,8 @@ sudo ufw allow https (Port 443)
 ```
 
 ## 7. Configure DNS with Domain
-- Add a A record with your domain provider and point to your AWS EC2 instance IP address
-- You can also add a CNAME record for www subdomain
+ Add a A record with your domain provider and point to your AWS EC2 instance IP address
+ You can also add a CNAME record for www subdomain
 
 ## 8. Install NGINX and Certbot and configure NGINX
 ```
@@ -106,10 +104,3 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 sudo certbot --nginx
 ```
 
-=======
-Service is Live on the below URL
-
-https://ecommerce-api-v54x.onrender.com
-
-
->>>>>>> 5cd74aea4b1e83d1b347ceccf8365b8e4eefb6b4
