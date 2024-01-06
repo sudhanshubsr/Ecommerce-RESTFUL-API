@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ecommerce Restful API
 >> Please visit [API DOCUMENTATION](https://api.sudhanshusharma.in/api/docs) for API documentation
 
@@ -105,3 +106,10 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 sudo certbot --nginx
 ```
 
+=======
+Service is Live on the below URL
+
+https://ecommerce-api-v54x.onrender.com
+
+
+>>>>>>> 5cd74aea4b1e83d1b347ceccf8365b8e4eefb6b4
