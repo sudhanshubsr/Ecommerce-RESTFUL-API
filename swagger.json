@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "ECOM API",
-    "description": "API for an e-commerce system.",
+    "description": "API for an e-commerce system and functionalities such as user registration, user login, product addition, product retrieval, product rating, product filtering, and shopping cart management.",
     "version": "1.0.0"
 
   },
