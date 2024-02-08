@@ -1,5 +1,5 @@
 # Ecommerce Restful API
->> Please visit [https://api.sudhanshusharma.in/api/docs](https://api.sudhanshusharma.in/api/docs) for API documentation
+>> Please visit [https://ecomapi.sudhanshusharma.in/api/docs](https://ecomapi.sudhanshusharma.in/api/docs) for API documentation
 
 
 Steps to deploy the project on AWS EC2 instance and configure NGINX and SSL
