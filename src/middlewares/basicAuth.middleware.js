@@ -4,7 +4,6 @@ const basicAuthorizer = async (req, res, next) => {
     //? Check if Authorization header is present
 
     const authHeader = req.headers.authorization;
-    // crendentiasl will be a part of the header
     console.log(authHeader);
 
     if(!authHeader){
@@ -17,13 +16,13 @@ const basicAuthorizer = async (req, res, next) => {
 
     //? Decode the credentials
     const decodedCredentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    
+
     const [email, password] = decodedCredentials.split(':');
     // ? credentials will be in the form "email:password" so we need to split them
 
    console.log(email,password)
    try{
-    
+
         //? Check if user exists in the database
         const user = await UserModel.findOne({email});
         if(!user || user.password !== password){
