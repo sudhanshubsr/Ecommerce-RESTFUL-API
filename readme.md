@@ -66,16 +66,16 @@ sudo nano /etc/nginx/sites-available/default
 ```
 Add the following to the location part of the server block
 ```
-    server_name yourdomain.com www.yourdomain.com;
+server_name yourdomain.com www.yourdomain.com;
 
-    location / {
-        proxy_pass http://localhost:8001; #whatever port your app runs on
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
+location / {
+    proxy_pass http://localhost:8001; #whatever port your app runs on
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+}
 ```
 ```
 # Check NGINX config
