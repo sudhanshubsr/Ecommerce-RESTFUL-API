@@ -3,12 +3,13 @@ FROM node:latest
 
 # Set the working directory
 
+RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Copy the package.json file to the working directory
 COPY package*.json ./
 
-RUN npm install
+RUN npm install && npm cache clean --force
 
 COPY . .
 
