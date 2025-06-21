@@ -52,12 +52,12 @@ server.use('/api/users', UserRouter);
 server.use('/api/docs', swagger.serve, swagger.setup(apiDocs));
 
 //? Middleware to handle 404 error
-server.use((req, res) => {
-  res.status(404).json({
-    message: 'Not Found',
-    'Please Check Our Documentation': '/api/docs',
-  });
-});
+// server.use((req, res) => {
+//   res.status(404).json({
+//     message: 'Not Found',
+//     'Please Check Our Documentation': '/api/docs',
+//   });
+// });
 
 //? Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URL);
