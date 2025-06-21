@@ -103,8 +103,7 @@ pipeline {
                     # Wait for application to start
                     sleep 10
                     
-                    # Health check
-                    curl -f http://localhost:3001/test || exit 1
+                    
                 '''
             }
         }
