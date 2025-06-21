@@ -70,7 +70,7 @@ db.once('open', function () {
 const PORT = process.env.PORT || 3001;
 
 server.get('/test', (req, res) => {
-  res.send(`Server is running on ${PORT}`);
+  res.status(201).send(`Server is running on ${PORT}`);
 });
 
 try {
