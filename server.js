@@ -60,7 +60,7 @@ server.use((req, res) => {
 });
 
 //? Connect to MongoDB
-mongoose.connect('mongodb+srv://ecomapi:xoxpe0-sUphes-jekrom@cluster0.kpbeevg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
+mongoose.connect(process.env.MONGODB_URL);
 export const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {

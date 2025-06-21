@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'ecommerce-api'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
-        MONGODB_URL = credentials('MONGODB_URL')
+        MONGODB_URL = 'mongodb+srv://ecomapi:xoxpe0-sUphes-jekrom@cluster0.kpbeevg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
         DOCKER_HUB_USERNAME = 'sudhanshubsr'
     }
     
@@ -94,7 +94,7 @@ pipeline {
                     # Run new production container
                     docker run -d \
                         --name ecommerce-api-prod \
-                        -p 3000:3001 \
+                        -p 3001:3001 \
                         -e NODE_ENV=production \
                         -e MONGODB_URL=${MONGODB_URL} \
                         --restart unless-stopped \
@@ -104,7 +104,7 @@ pipeline {
                     sleep 10
                     
                     # Health check
-                    curl -f http://localhost:3000/test || exit 1
+                    curl -f http://localhost:3001/test || exit 1
                 '''
             }
         }
