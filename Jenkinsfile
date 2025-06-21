@@ -16,6 +16,27 @@ pipeline {
             }
         }
         
+        stage('Check Docker Installation') {
+            steps {
+                echo 'Checking if Docker is installed...'
+                sh '''
+                    if command -v docker &> /dev/null; then
+                        echo "Docker is installed"
+                        docker --version
+                    else
+                        echo "ERROR: Docker is not installed on this Jenkins agent!"
+                        echo "Please install Docker on the agent with label 'docker-agent'"
+                        echo "You can install Docker using:"
+                        echo "  curl -fsSL https://get.docker.com -o get-docker.sh"
+                        echo "  sudo sh get-docker.sh"
+                        echo "  sudo usermod -aG docker jenkins"
+                        echo "  sudo systemctl restart jenkins"
+                        exit 1
+                    fi
+                '''
+            }
+        }
+        
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
@@ -115,6 +136,7 @@ pipeline {
             echo 'Pipeline failed!'
             sh '''
                 echo "Build ${BUILD_NUMBER} failed"
+                echo "Check the logs above for specific error details"
                 # You can add notification logic here (email, Slack, etc.)
             '''
         }
