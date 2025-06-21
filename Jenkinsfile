@@ -1,10 +1,14 @@
 pipeline {
-    agent any // using docker agent locally
+    agent {
+        docker {
+            image 'node:latest'
+        }
+    }
     
     environment {
         DOCKER_IMAGE = 'ecommerce-api'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
-        MONGODB_URL = 'mongodb+srv://ecomapi:xoxpe0-sUphes-jekrom@cluster0.kpbeevg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+        MONGODB_URL = credentials('MONGODB_URL')
         DOCKER_HUB_USERNAME = 'sudhanshubsr'
     }
     
@@ -16,34 +20,10 @@ pipeline {
             }
         }
         
-        stage('Check Docker Installation') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Checking if Docker is installed...'
-                sh '''
-                    if command -v docker &> /dev/null; then
-                        echo "Docker is installed"
-                        docker --version
-                    else
-                        echo "ERROR: Docker is not installed on this Jenkins agent!"
-                        echo "Please install Docker on the agent with label 'docker-agent'"
-                        echo ""
-                        echo "For Docker-in-Docker setup, you need to:"
-                        echo "1. Install Docker plugin in Jenkins"
-                        echo "2. Or mount Docker socket when running Jenkins agent container:"
-                        echo "   docker run -d \\"
-                        echo "     --name jenkins-agent \\"
-                        echo "     -v /var/run/docker.sock:/var/run/docker.sock \\"
-                        echo "     -v jenkins-agent-data:/var/jenkins_home \\"
-                        echo "     your-jenkins-agent-image"
-                        echo ""
-                        echo "3. Or install Docker directly on the agent:"
-                        echo "   curl -fsSL https://get.docker.com -o get-docker.sh"
-                        echo "   sudo sh get-docker.sh"
-                        echo "   sudo usermod -aG docker jenkins"
-                        echo "   sudo systemctl restart jenkins"
-                        exit 1
-                    fi
-                '''
+                echo 'Installing dependencies...'
+                sh 'npm ci'
             }
         }
         
@@ -94,7 +74,7 @@ pipeline {
                     # Run new production container
                     docker run -d \
                         --name ecommerce-api-prod \
-                        -p 3001:3001 \
+                        -p 3000:3001 \
                         -e NODE_ENV=production \
                         -e MONGODB_URL=${MONGODB_URL} \
                         --restart unless-stopped \
@@ -103,7 +83,8 @@ pipeline {
                     # Wait for application to start
                     sleep 10
                     
-                    
+                    # Health check
+                    curl -f http://localhost:3000/test || exit 1
                 '''
             }
         }
@@ -146,7 +127,6 @@ pipeline {
             sh '''
                 echo "Build ${BUILD_NUMBER} failed"
                 echo "Check the logs above for specific error details"
-                # You can add notification logic here (email, Slack, etc.)
             '''
         }
         unstable {
