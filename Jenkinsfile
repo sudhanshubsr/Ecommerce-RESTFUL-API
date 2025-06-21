@@ -1,5 +1,11 @@
 pipeline {
-    agent {label 'docker-agent'}
+    agent {
+        // Use a Docker container as the build agent by mounting the host's Docker socket.
+        docker {
+            image 'docker:20.10.16' // Using a specific version is recommended for consistency.
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
     
     environment {
         DOCKER_IMAGE = 'ecommerce-api'
