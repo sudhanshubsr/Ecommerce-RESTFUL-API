@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        // Use a Docker container as the build agent by mounting the host's Docker socket.
-        dockerContainer {
-            image: 'docker:latest'
-        }
-    }
+    agent any // using docker agent locally
     
     environment {
         DOCKER_IMAGE = 'ecommerce-api'
