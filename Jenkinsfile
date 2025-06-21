@@ -2,8 +2,7 @@ pipeline {
     agent {
         // Use a Docker container as the build agent by mounting the host's Docker socket.
         dockerContainer {
-            image 'docker:20.10.16' // Using a specific version is recommended for consistency.
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
+            image: 'docker:latest'
         }
     }
     
@@ -32,11 +31,21 @@ pipeline {
                     else
                         echo "ERROR: Docker is not installed on this Jenkins agent!"
                         echo "Please install Docker on the agent with label 'docker-agent'"
-                        echo "You can install Docker using:"
-                        echo "  curl -fsSL https://get.docker.com -o get-docker.sh"
-                        echo "  sudo sh get-docker.sh"
-                        echo "  sudo usermod -aG docker jenkins"
-                        echo "  sudo systemctl restart jenkins"
+                        echo ""
+                        echo "For Docker-in-Docker setup, you need to:"
+                        echo "1. Install Docker plugin in Jenkins"
+                        echo "2. Or mount Docker socket when running Jenkins agent container:"
+                        echo "   docker run -d \\"
+                        echo "     --name jenkins-agent \\"
+                        echo "     -v /var/run/docker.sock:/var/run/docker.sock \\"
+                        echo "     -v jenkins-agent-data:/var/jenkins_home \\"
+                        echo "     your-jenkins-agent-image"
+                        echo ""
+                        echo "3. Or install Docker directly on the agent:"
+                        echo "   curl -fsSL https://get.docker.com -o get-docker.sh"
+                        echo "   sudo sh get-docker.sh"
+                        echo "   sudo usermod -aG docker jenkins"
+                        echo "   sudo systemctl restart jenkins"
                         exit 1
                     fi
                 '''
