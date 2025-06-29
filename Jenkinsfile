@@ -50,9 +50,6 @@ pipeline {
         }
         
         stage('Deploy to Production') {
-            when {
-                branch 'main'
-            }
             steps {
                 echo 'Deploying to production environment...'
                 sh '''
@@ -85,9 +82,6 @@ pipeline {
         }
         
         stage('Health Check') {
-            when {
-                branch 'main'
-            }
             steps {
                 echo 'Performing health check...'
                 sh '''
