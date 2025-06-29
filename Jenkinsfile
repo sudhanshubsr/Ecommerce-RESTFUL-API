@@ -82,23 +82,21 @@ pipeline {
     stage('Health Check') {
         steps {
             script {
-            // We can reliably hit the app at localhost:3000 inside the EC2/Jenkins agent
-            def ip = '127.0.0.1'
-            echo "Using health-check IP → ${ip}:3000"
+            def publicIP = '13.201.2.181'
+            def url = "http://${publicIP}:3000/api/docs"
+            echo "🔍 Checking health at ${url}"
 
-            // Wait up to 1 minute for /api/docs to return HTTP 200
-            timeout(time: 1, unit: 'MINUTES') {
+            timeout(time: 2, unit: 'MINUTES') {
                 waitUntil {
-                // -f will cause curl to return non‑zero on HTTP errors
                 def status = sh(
-                    script: "curl -f --connect-timeout 5 -s http://${ip}:3000/api/docs > /dev/null",
+                    script: "curl -f --connect-timeout 5 -s ${url} > /dev/null",
                     returnStatus: true
                 )
                 if (status == 0) {
-                    echo "✅ Health check passed"
+                    echo "✅ Application is healthy at ${url}"
                     return true
                 } else {
-                    echo "⏳ /api/docs not ready yet; retrying in 5s..."
+                    echo "⏳ Not ready yet... retrying"
                     sleep 5
                     return false
                 }
