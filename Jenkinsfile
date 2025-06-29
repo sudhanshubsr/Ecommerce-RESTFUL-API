@@ -75,7 +75,6 @@ pipeline {
                     fi
                     
                     echo "Production container deployed successfully"
-                    echo "Application accessible at: http://13.201.2.181/api/docs:3000"
                 '''
             }
         }
@@ -94,7 +93,7 @@ pipeline {
                         sleep 10
                         
                         # Test if the application is responding on the expected port
-                        if curl -f http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):3000 --connect-timeout 10; then
+                        if curl -f http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):3000/api/docs --connect-timeout 10; then
                             echo "Health check passed - application is responding"
                         else
                             echo "Health check warning - application may not be fully ready yet"
@@ -121,7 +120,7 @@ pipeline {
             echo "Build ${BUILD_NUMBER} completed successfully"
             echo "Docker image: ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
             echo "Docker Hub URL: https://hub.docker.com/r/${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}"
-            echo "Production URL: http://[EC2-PUBLIC-IP]:3000 (if deployed)"
+            echo "Production URL: http://13.201.2.181:3000/api/docs (if deployed)"
         }
         failure {
             echo 'Pipeline failed!'
