@@ -79,36 +79,35 @@ pipeline {
             }
         }
         
-        stage('Health Check') {
-            steps {
-                script {
-                // 1. Obtain EC2 private IP; fallback to localhost if metadata fails
-                def ip = sh(
-                    script: "curl -s http://169.254.169.254/latest/meta-data/local-ipv4 || echo '127.0.0.1'",
-                    returnStdout: true
-                ).trim()
-                echo "Using health-check IP → ${ip}:3000"
+    stage('Health Check') {
+        steps {
+            script {
+            // We can reliably hit the app at localhost:3000 inside the EC2/Jenkins agent
+            def ip = '127.0.0.1'
+            echo "Using health-check IP → ${ip}:3000"
 
-                // 2. Wait until the /api/docs endpoint responds with HTTP 2xx
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitUntil {
-                    def code = sh(
-                        script: "curl -f --connect-timeout 5 -s http://${ip}:3000/api/docs > /dev/null",
-                        returnStatus: true
-                    )
-                    if (code == 0) {
-                        echo "✅ Health check passed"
-                        return true
-                    } else {
-                        echo "⏳ Endpoint not ready yet; retrying in 5s..."
-                        sleep 5
-                        return false
-                    }
-                    }
+            // Wait up to 1 minute for /api/docs to return HTTP 200
+            timeout(time: 1, unit: 'MINUTES') {
+                waitUntil {
+                // -f will cause curl to return non‑zero on HTTP errors
+                def status = sh(
+                    script: "curl -f --connect-timeout 5 -s http://${ip}:3000/api/docs > /dev/null",
+                    returnStatus: true
+                )
+                if (status == 0) {
+                    echo "✅ Health check passed"
+                    return true
+                } else {
+                    echo "⏳ /api/docs not ready yet; retrying in 5s..."
+                    sleep 5
+                    return false
                 }
                 }
             }
+            }
+        }
 }
+
 
         
     }
