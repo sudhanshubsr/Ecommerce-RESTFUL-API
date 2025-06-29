@@ -16,13 +16,6 @@ pipeline {
             }
         }
         
-        stage('Install Dependencies') {
-            steps {
-                echo 'Installing dependencies...'
-                sh 'npm ci'
-            }
-        }
-        
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
