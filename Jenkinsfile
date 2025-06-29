@@ -119,35 +119,26 @@ pipeline {
     }
     
     post {
-    always {
-        echo 'Pipeline completed. Cleaning up workspace...'
-        script {
-            sh 'docker logout || true'
+        always {
+            echo 'Pipeline completed. Cleaning up workspace...'
+            node('docker-ec2-agent') {
+                sh 'docker logout || true'
+                cleanWs()
+            }
         }
-        cleanWs()
-    }
-    success {
-        echo 'Pipeline succeeded!'
-        script {
-            sh '''
-                echo "Build ${BUILD_NUMBER} completed successfully"
-                echo "Docker image: ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
-                echo "Docker Hub URL: https://hub.docker.com/r/${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}"
-            '''
+        success {
+            echo 'Pipeline succeeded!'
+            echo "Build ${BUILD_NUMBER} completed successfully"
+            echo "Docker image: ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+            echo "Docker Hub URL: https://hub.docker.com/r/${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}"
         }
-    }
-    failure {
-        echo 'Pipeline failed!'
-        script {
-            sh '''
-                echo "Build ${BUILD_NUMBER} failed"
-                echo "Check the logs above for specific error details"
-            '''
+        failure {
+            echo 'Pipeline failed!'
+            echo "Build ${BUILD_NUMBER} failed"
+            echo "Check the logs above for specific error details"
+        }
+        unstable {
+            echo 'Pipeline is unstable!'
         }
     }
-    unstable {
-        echo 'Pipeline is unstable!'
-    }
-}
-
 }
