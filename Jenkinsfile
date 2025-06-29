@@ -119,28 +119,35 @@ pipeline {
     }
     
     post {
-        always {
-            echo 'Pipeline completed. Cleaning up workspace...'
+    always {
+        echo 'Pipeline completed. Cleaning up workspace...'
+        script {
             sh 'docker logout || true'
-            cleanWs()
         }
-        success {
-            echo 'Pipeline succeeded!'
+        cleanWs()
+    }
+    success {
+        echo 'Pipeline succeeded!'
+        script {
             sh '''
                 echo "Build ${BUILD_NUMBER} completed successfully"
                 echo "Docker image: ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                 echo "Docker Hub URL: https://hub.docker.com/r/${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}"
             '''
         }
-        failure {
-            echo 'Pipeline failed!'
+    }
+    failure {
+        echo 'Pipeline failed!'
+        script {
             sh '''
                 echo "Build ${BUILD_NUMBER} failed"
                 echo "Check the logs above for specific error details"
             '''
         }
-        unstable {
-            echo 'Pipeline is unstable!'
-        }
     }
+    unstable {
+        echo 'Pipeline is unstable!'
+    }
+}
+
 }
