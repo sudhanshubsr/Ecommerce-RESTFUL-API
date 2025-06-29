@@ -81,31 +81,35 @@ pipeline {
         
         stage('Health Check') {
             steps {
-                echo 'Performing health check...'
-                sh '''
-                    # Basic health check - verify container is running and responding
-                    echo "Checking if container is running..."
-                    if docker ps | grep ecommerce-api-prod; then
-                        echo "Container is running"
-                        
-                        # Wait a bit more for the application to fully start
-                        echo "Waiting for application to be ready..."
-                        sleep 10
-                        
-                        # Test if the application is responding on the expected port
-                        if curl -f http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):3000/api/docs --connect-timeout 10; then
-                            echo "Health check passed - application is responding"
-                        else
-                            echo "Health check warning - application may not be fully ready yet"
-                            # Don't fail the pipeline, just warn
-                        fi
-                    else
-                        echo "Health check failed - container is not running"
-                        exit 1
-                    fi
-                '''
+                script {
+                // 1. Obtain EC2 private IP; fallback to localhost if metadata fails
+                def ip = sh(
+                    script: "curl -s http://169.254.169.254/latest/meta-data/local-ipv4 || echo '127.0.0.1'",
+                    returnStdout: true
+                ).trim()
+                echo "Using health-check IP → ${ip}:3000"
+
+                // 2. Wait until the /api/docs endpoint responds with HTTP 2xx
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitUntil {
+                    def code = sh(
+                        script: "curl -f --connect-timeout 5 -s http://${ip}:3000/api/docs > /dev/null",
+                        returnStatus: true
+                    )
+                    if (code == 0) {
+                        echo "✅ Health check passed"
+                        return true
+                    } else {
+                        echo "⏳ Endpoint not ready yet; retrying in 5s..."
+                        sleep 5
+                        return false
+                    }
+                    }
+                }
+                }
             }
-        }
+}
+
         
     }
     
