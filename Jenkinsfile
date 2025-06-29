@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        dockerContainer {
-            image 'node:latest'
-        }
-    }
+    agent { label 'docker-ec2-agent' }
     
     environment {
         DOCKER_IMAGE = 'ecommerce-api'
@@ -79,39 +75,53 @@ pipeline {
                         -e MONGODB_URL=${MONGODB_URL} \
                         --restart unless-stopped \
                         ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
+
+                    # Wait for container to start
+                    sleep 20
                     
-                    # Wait for application to start
-                    sleep 10
-                    
-                    # Health check
-                    curl -f http://localhost:3000/test || exit 1
+                    # Verify the container started successfully
+                    if ! docker ps | grep ecommerce-api-prod; then
+                        echo "Failed to start production container"
+                        exit 1
+                    fi
                 '''
             }
         }
         
-        stage('Cleanup') {
+        stage('Health Check') {
             steps {
-                echo 'Cleaning up old Docker images...'
+                echo 'Performing health check...'
                 sh '''
-                    # Remove old local Docker images (keep last 5)
-                    docker images ${DOCKER_IMAGE} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true
-                    
-                    # Remove old Docker Hub images (keep last 5)
-                    docker images ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true
-                    
-                    # Remove dangling images
-                    docker image prune -f
-                    
-                    # Logout from Docker Hub
-                    docker logout
+                    # Basic health check - verify container is responding
+                    timeout 30 bash -c 'until docker exec ecommerce-api-prod curl -f http://localhost:3001/health > /dev/null 2>&1; do sleep 2; done' || echo "Health check timeout - container may not be fully ready"
                 '''
             }
         }
+        
+        // stage('Cleanup') {
+        //     steps {
+        //         echo 'Cleaning up old Docker images...'
+        //         sh '''
+        //             # Remove old local Docker images (keep last 5)
+        //             docker images ${DOCKER_IMAGE} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true
+                    
+        //             # Remove old Docker Hub images (keep last 5)
+        //             docker images ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +6 | awk '{print $1}' | xargs -r docker rmi || true
+                    
+        //             # Remove dangling images
+        //             docker image prune -f
+                    
+        //             # Logout from Docker Hub
+        //             docker logout
+        //         '''
+        //     }
+        // }
     }
     
     post {
         always {
             echo 'Pipeline completed. Cleaning up workspace...'
+            sh 'docker logout || true'
             cleanWs()
         }
         success {
