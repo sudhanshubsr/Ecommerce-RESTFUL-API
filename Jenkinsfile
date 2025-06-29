@@ -21,8 +21,9 @@ pipeline {
                 echo 'Building Docker image...'
                 sh '''
                     # Build the Docker image
-                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                    docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                    docker build -t ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} .
+                    docker tag ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:latest
+
                 '''
             }
         }
@@ -35,9 +36,7 @@ pipeline {
                         # Login to Docker Hub
                         echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
                         
-                        # Tag images with Docker Hub username
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker tag ${DOCKER_IMAGE}:latest ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:latest
+                
                         
                         # Push images to Docker Hub
                         docker push ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
@@ -57,10 +56,10 @@ pipeline {
                     docker stop ecommerce-api-prod || true
                     docker rm ecommerce-api-prod || true
                     
-                    # Run new production container
+                    # Run new production container (bind to all interfaces)
                     docker run -d \
                         --name ecommerce-api-prod \
-                        -p 3000:3001 \
+                        -p 0.0.0.0:3000:3001 \
                         -e NODE_ENV=production \
                         -e MONGODB_URL="${MONGODB_URL}" \
                         --restart unless-stopped \
@@ -76,7 +75,7 @@ pipeline {
                     fi
                     
                     echo "Production container deployed successfully"
-                    echo "Application accessible at: http://localhost:3000"
+                    echo "Application accessible at: http://13.201.2.181/api/docs:3000"
                 '''
             }
         }
@@ -95,8 +94,7 @@ pipeline {
                         sleep 10
                         
                         # Test if the application is responding on the expected port
-                        if docker exec ecommerce-api-prod curl -f http://localhost:3001 --connect-timeout 10 || \
-                           curl -f http://localhost:3000 --connect-timeout 10; then
+                        if curl -f http://$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):3000 --connect-timeout 10; then
                             echo "Health check passed - application is responding"
                         else
                             echo "Health check warning - application may not be fully ready yet"
@@ -110,31 +108,6 @@ pipeline {
             }
         }
         
-        stage('Cleanup') {
-            steps {
-                echo 'Cleaning up old Docker images...'
-                sh '''
-                    # Remove old local Docker images (keep last 5 builds)
-                    OLD_IMAGES=$(docker images ${DOCKER_IMAGE} --format "{{.Repository}}:{{.Tag}}" | grep -E ":[0-9]+$" | sort -t: -k2 -nr | tail -n +6)
-                    if [ ! -z "$OLD_IMAGES" ]; then
-                        echo "Removing old images: $OLD_IMAGES"
-                        echo "$OLD_IMAGES" | xargs -r docker rmi || true
-                    fi
-                    
-                    # Remove old Docker Hub tagged images (keep last 5 builds)
-                    OLD_HUB_IMAGES=$(docker images ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE} --format "{{.Repository}}:{{.Tag}}" | grep -E ":[0-9]+$" | sort -t: -k2 -nr | tail -n +6)
-                    if [ ! -z "$OLD_HUB_IMAGES" ]; then
-                        echo "Removing old hub images: $OLD_HUB_IMAGES"
-                        echo "$OLD_HUB_IMAGES" | xargs -r docker rmi || true
-                    fi
-                    
-                    # Remove dangling images
-                    docker image prune -f
-                    
-                    echo "Cleanup completed"
-                '''
-            }
-        }
     }
     
     post {
@@ -148,7 +121,7 @@ pipeline {
             echo "Build ${BUILD_NUMBER} completed successfully"
             echo "Docker image: ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
             echo "Docker Hub URL: https://hub.docker.com/r/${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE}"
-            echo "Production URL: http://localhost:3000 (if deployed)"
+            echo "Production URL: http://[EC2-PUBLIC-IP]:3000 (if deployed)"
         }
         failure {
             echo 'Pipeline failed!'
