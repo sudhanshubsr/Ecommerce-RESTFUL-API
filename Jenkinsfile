@@ -86,7 +86,7 @@ pipeline {
                 echo 'Performing health check...'
                 sh '''
                     # Basic health check - verify container is responding
-                    timeout 30 bash -c 'until docker exec ecommerce-api-prod curl -f http://localhost:3001/health > /dev/null 2>&1; do sleep 2; done' || echo "Health check timeout - container may not be fully ready"
+                    timeout 30 bash -c 'until docker exec ecommerce-api-prod curl -f http://localhost:3001/api/docs > /dev/null 2>&1; do sleep 2; done' || echo "Health check timeout - container may not be fully ready"
                 '''
             }
         }
